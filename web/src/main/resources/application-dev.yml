@@ -1,0 +1,9 @@
+pdf:
+  dir: ../arquivos
+
+debug: true
+
+logging.level:
+    org.springframework.security: TRACE
+    br.unesp: TRACE
+    org.apache.tomcat.util.net.NioEndpoint: INFO

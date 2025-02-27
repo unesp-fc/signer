@@ -1,0 +1,12 @@
+h1 {
+    margin-bottom: 1em;
+}
+
+form {
+    display: inline;
+}
+
+form button {
+    margin-left: 1em;
+    padding: 0;
+}

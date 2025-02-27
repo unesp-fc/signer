@@ -1,0 +1,83 @@
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+}
+
+header {
+    background-color: #00844a;
+}
+
+.navbar-brand img {
+    margin-top: -0.8rem;
+    margin-bottom: -0.8rem;
+}
+
+main {
+    background-color: hsl(0, 0%, 95%);
+    padding: 2em;
+}
+
+main.center {
+    display: flex;
+    align-items: center;
+    padding-bottom: 5.5em;
+}
+
+footer {
+    text-align: center;
+    font-size: .7rem;
+    background-color: hsl(0, 0%, 90%);
+}
+
+.form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 1em;
+    padding-bottom: 5em;
+    margin: auto;
+}
+
+.form-signin .checkbox {
+    font-weight: 400;
+}
+
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+    margin-bottom: 3rem;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.consent {
+    display: inline-block;
+    width: 30em;
+    margin: auto;
+}
+
+.consent h1 {
+    margin-bottom: 3rem;
+}
+
+.consent blockquote {
+    margin-left: 2em;
+}
+
+.consent li {
+    list-style-type: square;
+}
+
+.consent .buttons {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.consent .note {
+    font-size: .8rem;
+}

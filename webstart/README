@@ -1,0 +1,3 @@
+The JnlpDownloadServlet version migrated to Jakarta.
+
+The implementation is based on the code from mojohaus/webstart.
