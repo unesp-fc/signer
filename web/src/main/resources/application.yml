@@ -6,4 +6,4 @@ spring:
     url: jdbc:mariadb://localhost:3306/sign?localSocket=/var/run/mysqld/mysqld.sock
   jpa:
     generate-ddl: true
-    hibernate.ddl-auto: create
+    hibernate.ddl-auto: update

@@ -41,6 +41,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class SignatureService {
 
+    private final byte[] EOF = "\n%%EOF\n".getBytes();
+
     public String validadeCode(File pdf) throws IOException {
         COSArray unespSign;
         try (PDDocument doc = Loader.loadPDF(pdf)) {
@@ -50,9 +52,10 @@ public class SignatureService {
             return null;
         }
         var input = new FileInputStream(pdf);
-        int[] byteRange = new int[] {0, unespSign.getInt(0), unespSign.getInt(0) + unespSign.getInt(1), (int) pdf.length() - (unespSign.getInt(0) + unespSign.getInt(1))};
-        var filterInput = new COSFilterInputStream(input, byteRange);
         var pdfInfo = new RandomAccessFile(pdf, "rw");
+        var end = findEof(pdfInfo, unespSign.getInt(0));
+        int[] byteRange = new int[] {0, unespSign.getInt(0), unespSign.getInt(0) + unespSign.getInt(1), end - (unespSign.getInt(0) + unespSign.getInt(1))};
+        var filterInput = new COSFilterInputStream(input, byteRange);
         String code = genCode(filterInput);
         pdfInfo.seek(unespSign.getInt(0));
         byte[] b = new byte[code.getBytes().length];
@@ -130,6 +133,27 @@ public class SignatureService {
             }
         }
         return null;
+    }
+
+    private int findEof(RandomAccessFile pdfInfo, int offset) throws IOException {
+        pdfInfo.seek(offset);
+        int r;
+        int count = 0;
+        while ((r = pdfInfo.read()) != -1) {
+            byte b = (byte) (r & 0xff);
+            if (b == EOF[count]) {
+                count++;
+            }
+            if (count == EOF.length) {
+                return (int) pdfInfo.getFilePointer();
+            }
+        }
+        return 0;
+    }
+
+    public static void main(String args[]) throws IOException {
+        System.out.println(new SignatureService().validadeCode(new File("/home/demitrius/sample-assinado.pdf")));
+        System.out.println(new SignatureService().validadeCode(new File("/home/demitrius/sample-info.pdf")));
     }
 
 }

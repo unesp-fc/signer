@@ -50,8 +50,8 @@ services:
     environment:
       - _JAVA_OPTIONS=-Xmx1024m -Duser.language=pt -Duser.country=BR -Dfile.encoding=UTF-8
     networks:
-      - rede-swarm-staging
+      - rede-swarm-sistemas
 
 networks:
-  rede-swarm-staging:
+  rede-swarm-sistemas:
     external: true

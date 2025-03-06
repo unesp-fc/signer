@@ -36,4 +36,9 @@ public class Usuario implements UserDetails {
         return pessoa;
     }
 
+    @Override
+    public String toString() {
+        return "Usuario{" + "pessoa=" + pessoa + '}';
+    }
+
 }

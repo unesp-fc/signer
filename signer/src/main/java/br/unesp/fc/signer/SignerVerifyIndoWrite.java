@@ -135,7 +135,7 @@ public class SignerVerifyIndoWrite {
         }
         PDAnnotationLink link = new PDAnnotationLink();
         PDActionURI action = new PDActionURI();
-        action.setURI("https://sign.fc.unesp.br/validador");
+        action.setURI("https://sign.fc.unesp.br");
         link.setAction(action);
         Color color = signVerifyInfoModel.getForeground();
         float [] components = new float [] { color.getRed () / 255f, color.getGreen () / 255f, color.getBlue () / 255f };

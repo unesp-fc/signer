@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @org.springframework.stereotype.Controller
 @RequiredArgsConstructor
+@Slf4j
 public class Controller {
 
     private final Service service;
@@ -32,6 +34,7 @@ public class Controller {
     @PostMapping("/upload")
     public ResponseEntity upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal Usuario usuario) throws IOException {
         if (!MediaType.APPLICATION_PDF.includes(MediaType.valueOf(file.getContentType()))) {
+            log.error("Invalid content type: {}", file.getContentType());
             return new ResponseEntity("Arquivo inválido!", HttpStatus.BAD_REQUEST);
         }
         File f = File.createTempFile("sign-", ".pdf");
@@ -39,12 +42,15 @@ public class Controller {
         String code;
         String[] ids;
         if ((code = signatureService.validadeCode(f)) == null) {
+            log.error("Código inválido ou faltando");
             return new ResponseEntity("Arquivo inválido!", HttpStatus.BAD_REQUEST);
         }
         if ((ids = signatureService.getFileId(f)) == null) {
+            log.error("PDF ID inválido ou faltando");
             return new ResponseEntity("Arquivo inválido!", HttpStatus.BAD_REQUEST);
         }
         if (!signatureService.validadeSign(f)) {
+            log.error("Assinatura inválida ou fantando");
             return new ResponseEntity("Arquivo inválido!", HttpStatus.BAD_REQUEST);
         }
         Pdf pdf = new Pdf();
