@@ -120,6 +120,9 @@ public class DownloadRequest
             _path = "/"; // No path given
         }
         _path = _path.trim();
+        if ( _path.equals(request.getServletPath()) ) {
+            _path += "/";
+        }
         if ( _context != null && !_path.endsWith( "/" ) )
         {
             String realPath = _context.getRealPath( _path );

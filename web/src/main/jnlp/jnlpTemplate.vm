@@ -27,7 +27,7 @@
   </security>
 #end
   <resources>
-    <j2se version="$j2seVersion"/>
+    <j2se version="21"/>
      $dependencies
   </resources>
   <application-desc main-class="$mainClass"/>
