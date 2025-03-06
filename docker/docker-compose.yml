@@ -1,0 +1,57 @@
+version: '3.8'
+
+x-logging: &loki-logging
+  driver: loki
+  options:
+    loki-url: http://186.217.252.58:3100/loki/api/v1/push
+
+services:
+  db-server:
+    image: mariadb
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512m
+    volumes:
+      - ./database:/var/lib/mysql
+      - ./mysqld:/var/run/mysqld
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - MYSQL_DATABASE=sign
+      - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1
+      - MARIADB_ROOT_HOST=localhost
+
+  signer:
+    image: signer
+    logging: *loki-logging
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024m
+      restart_policy:
+        condition: on-failure
+      labels:
+        - traefik.enable=true
+        - traefik.http.middlewares.signer-clientcert.passtlsclientcert.pem=true
+        - traefik.http.routers.signer.rule=Host(`sign.fc.unesp.br`)
+        - traefik.http.routers.signer.entrypoints=web-seguro
+        - traefik.http.routers.signer.tls=true
+        - traefik.http.routers.signer.tls.options=sign@file
+        - traefik.http.routers.signer.middlewares=signer-clientcert
+        - traefik.http.services.signer.loadbalancer.server.port=8080
+        - traefik.http.middlewares.signer.passtlsclientcert.pem=true
+    volumes:
+      - ./arquivos:/srv/arquivos
+      - ./mysqld:/var/run/mysqld
+    environment:
+      - _JAVA_OPTIONS=-Xmx1024m -Duser.language=pt -Duser.country=BR -Dfile.encoding=UTF-8
+    networks:
+      - rede-swarm-staging
+
+networks:
+  rede-swarm-staging:
+    external: true
