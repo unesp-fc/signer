@@ -32,13 +32,12 @@ public class CertificateFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            //var value = "-----BEGIN CERTIFICATE-----\n" + request.getHeader(HEADER) + "\n-----END CERTIFICATE-----";
-            // TODO: Aceitar formato do Traefik
             var value = request.getHeader(HEADER).replace("\t", "\n");
-            System.out.println();
-            System.out.println(value);
-            System.out.println();
+            if (!value.startsWith("-----BEGIN CERTIFICATE-----")) {
+                value = "-----BEGIN CERTIFICATE-----\n" + value + "\n-----END CERTIFICATE-----";
+            }
             X509Certificate cert = (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(value.getBytes()));
+            log.info(cert.getSubjectX500Principal().getName());
             request.setAttribute(ATTRIBUTE, new X509Certificate[] {cert});
         } catch (Exception ex) {
             log.error(null, ex);
