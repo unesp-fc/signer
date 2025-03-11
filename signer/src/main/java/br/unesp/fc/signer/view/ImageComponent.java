@@ -5,11 +5,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-public class Image extends JLabel {
+public class ImageComponent extends JLabel {
 
     private BufferedImage image;
 
-    public Image() {
+    public ImageComponent() {
         //setOpaque(false);
     }
 

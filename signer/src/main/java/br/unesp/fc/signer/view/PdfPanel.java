@@ -31,7 +31,7 @@ public class PdfPanel extends javax.swing.JPanel {
     private PdfViewModel pdfViewModel;
     private SignVerifyInfoModel signVerifyInfoModel;
 
-    private Image info = new Image();
+    private ImageComponent info = new ImageComponent();
     private MoveContainer move = new MoveContainer(info);
     private boolean updateBounds = true;
 
