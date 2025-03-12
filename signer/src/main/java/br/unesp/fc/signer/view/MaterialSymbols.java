@@ -91,7 +91,7 @@ public class MaterialSymbols {
             var g2 = (Graphics2D) g;
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                            RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
-            var font = FONT.deriveFont(72.0f * size / Toolkit.getDefaultToolkit().getScreenResolution());
+            var font = FONT.deriveFont(72f / 96f * c.getHeight());
             var metrics = g2.getFontMetrics(font);
             x += (size - metrics.stringWidth(glyph)) / 2;
             y += (size - metrics.getHeight()) / 2 + metrics.getAscent();

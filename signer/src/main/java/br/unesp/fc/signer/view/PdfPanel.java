@@ -8,8 +8,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -26,6 +28,7 @@ public class PdfPanel extends javax.swing.JPanel {
 
     private static final float SCALE_FACTOR = 96f / 72f;
     private BufferedImage image;
+    private BaseMultiResolutionImage scaledImage;
     private FileModel fileModel;
     private SelectedFileModel selectedFileModel;
     private PdfViewModel pdfViewModel;
@@ -51,7 +54,7 @@ public class PdfPanel extends javax.swing.JPanel {
                 move.setBackground(evt.getNewValue() != null ? (Color) evt.getNewValue() : this.getBackground());
                 break;
             default:
-                info.setImage(signVerifyInfoModel.getImage());
+                info.setImage(signVerifyInfoModel.getImage(getGraphicsConfiguration().getDefaultTransform().getScaleX()));
                 if (updateBounds) {
                     var bounds = signVerifyInfoModel.getBounds();
                     bounds.y = image.getHeight() - bounds.y - bounds.height;
@@ -117,8 +120,6 @@ public class PdfPanel extends javax.swing.JPanel {
     @Autowired
     public void setSignVerifyInfoModel(SignVerifyInfoModel signVerifyInfoModel) {
         this.signVerifyInfoModel = signVerifyInfoModel;
-        info.setImage(signVerifyInfoModel.getImage());
-        move.setSize(signVerifyInfoModel.getImage().getWidth(), signVerifyInfoModel.getImage().getHeight());
         signVerifyInfoModel.addListener(signVerifyInfoModelListener);
         signVerifyInfoModelListener.propertyChange(new PropertyChangeEvent(signVerifyInfoModel, SignVerifyInfoModel.BACKGROUND, null, signVerifyInfoModel.getBackground()));
     }
@@ -145,7 +146,15 @@ public class PdfPanel extends javax.swing.JPanel {
             return;
         }
         try {
-            image = fileModel.getRenderer().renderImage(pdfViewModel.getCurrentPage(), pdfViewModel.getScale() * SCALE_FACTOR, ImageType.ARGB, RenderDestination.VIEW);
+            float scale = pdfViewModel.getScale() * SCALE_FACTOR;
+            image = fileModel.getRenderer().renderImage(pdfViewModel.getCurrentPage(), scale, ImageType.ARGB, RenderDestination.VIEW);
+            if (getGraphicsConfiguration().getDefaultTransform().getScaleX() > 1) {
+                scale *= getGraphicsConfiguration().getDefaultTransform().getScaleX();
+                var scaledimage = fileModel.getRenderer().renderImage(pdfViewModel.getCurrentPage(), scale, ImageType.ARGB, RenderDestination.VIEW);
+                scaledImage = new BaseMultiResolutionImage( image, scaledimage);
+            } else {
+                scaledImage = new BaseMultiResolutionImage( image);
+            }
         } catch (IOException ex) {
             Logger.getLogger(PdfPanel.class.getName()).log(Level.SEVERE, null, ex);
             image = null;
@@ -155,8 +164,8 @@ public class PdfPanel extends javax.swing.JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (fileModel != null && image != null) {
-            g.drawImage(image, 0, 0, this);
+        if (fileModel != null && scaledImage != null) {
+            g.drawImage(scaledImage, 0, 0, this);
         }
     }
 

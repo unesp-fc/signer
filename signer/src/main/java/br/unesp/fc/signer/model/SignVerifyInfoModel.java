@@ -2,8 +2,10 @@ package br.unesp.fc.signer.model;
 
 import br.unesp.fc.signer.SignerVerifyIndoWrite;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -23,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SignVerifyInfoModel {
+
+    private final float INTERNAL_SCALE = 96f / 72f;
 
     private Color background;
     private Color foreground = Color.BLACK;
@@ -57,7 +61,7 @@ public class SignVerifyInfoModel {
         return new Rectangle2D.Float(x, y, width, height);
     }
 
-    private void generate() {
+    private BufferedImage generate(float screenScale) {
         try (PDDocument doc = new PDDocument()) {
             var size = signerVerifyIndoWrite.calcSize(fontSize);
             PDPage page;
@@ -69,27 +73,25 @@ public class SignVerifyInfoModel {
             doc.addPage(page);
             signerVerifyIndoWrite.write(doc, page, true);
             PDFRenderer renderer = new PDFRenderer(doc);
-            BufferedImage image = renderer.renderImage(0, scale * 96f / 72f, ImageType.ARGB.ARGB, RenderDestination.EXPORT.VIEW);
-//            if (background != null) {
-//                BufferedImage background = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-//                var g = background.getGraphics();
-////                g.setColor(this.background);
-////                g.fillRect(0, 0, background.getWidth(), background.getHeight());
-//                g.drawImage(image, 0, 0, this.background, null);
-//                this.image = background;
-//            }
-            this.image = image;
+            this.image = renderer.renderImage(0, scale * INTERNAL_SCALE, ImageType.ARGB, RenderDestination.EXPORT.VIEW);
             verifyMinBounds(true);
+            if (screenScale != 1) {
+                BufferedImage image = renderer.renderImage(0, screenScale * scale * INTERNAL_SCALE, ImageType.ARGB, RenderDestination.EXPORT.VIEW);
+                return image;
+            }
         } catch (IOException ex) {
             Logger.getLogger(SignVerifyInfoModel.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return this.image;
     }
 
-    public BufferedImage getImage() {
-        if (image == null) {
-            generate();
+    public Image getImage(double screenScale) {
+        var image = generate((float) screenScale);
+        if (screenScale != 1) {
+            return new BaseMultiResolutionImage(this.image, image);
+        } else {
+            return new BaseMultiResolutionImage(this.image);
         }
-        return image;
     }
 
     public Color getBackground() {
@@ -113,7 +115,7 @@ public class SignVerifyInfoModel {
         if (!this.foreground.equals(foreground)) {
             Color old = this.foreground;
             this.foreground = foreground;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(FOREGROUND, old, this.foreground);
         }
     }
@@ -126,7 +128,7 @@ public class SignVerifyInfoModel {
         if (!this.linkColor.equals(linkColor)) {
             Color old = this.linkColor;
             this.linkColor = linkColor;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(LINK_COLOR, old, this.linkColor);
         }
     }
@@ -139,7 +141,7 @@ public class SignVerifyInfoModel {
         if (this.fontSize != fontSize) {
             float old = this.fontSize;
             this.fontSize = fontSize;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(FONT_SIZE, old, this.fontSize);
         }
     }
@@ -152,7 +154,7 @@ public class SignVerifyInfoModel {
         if (this.scale != scale) {
             float old = this.scale;
             this.scale = scale;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(SCALE, old, this.scale);
         }
     }
@@ -166,7 +168,7 @@ public class SignVerifyInfoModel {
     }
 
     public void setBounds(float x, float y, float width, float height) {
-        float scale = this.scale * 96f / 72f;
+        float scale = this.scale * INTERNAL_SCALE;
         var old = new Rectangle.Float(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
         this.x = x / scale;
         this.y = y / scale;
@@ -176,12 +178,12 @@ public class SignVerifyInfoModel {
     }
 
     public Rectangle getBounds() {
-        float scale = this.scale * 96f / 72f;
+        float scale = this.scale * INTERNAL_SCALE;
         return new Rectangle((int) (this.x * scale), (int) (this.y * scale), (int) (this.width * scale), (int)(this.height * scale));
     }
 
     private boolean verifyMinBounds(boolean firePropertyChange) {
-        float scale = this.scale * 96f / 72f;
+        float scale = this.scale * INTERNAL_SCALE;
         var old = new Rectangle.Float(this.x * scale, this.y * scale, this.width * scale, this.height * scale);
         var changed = false;
         if (this.width < image.getWidth() / scale) {
@@ -206,7 +208,7 @@ public class SignVerifyInfoModel {
         if (this.textFont != textFont) {
             var old = this.textFont;
             this.textFont = textFont;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(TEXT_FONT, old, this.textFont);
         }
     }
@@ -219,7 +221,7 @@ public class SignVerifyInfoModel {
         if (this.codeFont != codeFont) {
             var old = this.codeFont;
             this.codeFont = codeFont;
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(CODE_FONT, old, this.codeFont);
         }
     }
@@ -242,7 +244,7 @@ public class SignVerifyInfoModel {
                 this.width = this.height;
                 this.height = width;
             }
-            generate();
+            generate(1.0f);
             changes.firePropertyChange(ROTATION, old, rotation);
         }
     }
@@ -252,7 +254,7 @@ public class SignVerifyInfoModel {
     }
 
     public void setPosition(Rectangle.Float rect) {
-        float scale = this.scale * 96f / 72f;
+        float scale = this.scale * INTERNAL_SCALE;
         var oldBounds = new Rectangle.Float(x * scale, y * scale, width * scale, height * scale);
         boolean changed = false;
         if (x != rect.x) {

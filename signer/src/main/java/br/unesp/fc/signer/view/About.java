@@ -1,5 +1,6 @@
 package br.unesp.fc.signer.view;
 
+import java.awt.image.BaseMultiResolutionImage;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -19,7 +20,10 @@ public class About extends javax.swing.JDialog {
         try {
             imgLogo = ImageIO.read(getClass().getResourceAsStream("/logo_fc.png"));
             int size = Math.min(logo.getWidth(), logo.getHeight());
-            logo.setIcon(new javax.swing.ImageIcon(imgLogo.getScaledInstance(size, size,java.awt.Image.SCALE_SMOOTH)));
+            double scale = getGraphicsConfiguration().getDefaultTransform().getScaleX();
+            logo.setIcon(new javax.swing.ImageIcon(new BaseMultiResolutionImage(
+                    imgLogo.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH),
+                    imgLogo.getScaledInstance((int) Math.round(size * scale), (int) Math.round(size * scale), java.awt.Image.SCALE_SMOOTH))));
         } catch (IOException ex) {
             Logger.getLogger(About.class.getName()).log(Level.SEVERE, null, ex);
         }
