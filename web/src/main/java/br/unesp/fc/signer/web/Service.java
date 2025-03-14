@@ -64,14 +64,7 @@ public class Service {
             return null;
         }
         String cpf = name.substring(i + 1);
-        Pessoa pessoa = pessoaRepository.findByCpf(cpf);
-        if (pessoa != null) {
-            return pessoa;
-        }
-        pessoa = new Pessoa();
-        pessoa.setCpf(cpf);
-        pessoa.setNome(name.substring(0, i));
-        return pessoaRepository.save(pessoa);
+        return pessoaRepository.findByCpf(cpf);
     }
 
 }
