@@ -4,7 +4,7 @@
  */
 package br.unesp.fc.signer.view;
 
-import br.unesp.fc.signer.model.KeyStoreTableModel2;
+import br.unesp.fc.signer.model.KeyStoreTableModel;
 import br.unesp.fc.signer.model.SignModel;
 import java.io.FileInputStream;
 import java.security.KeyStore;
@@ -24,7 +24,7 @@ import javax.swing.filechooser.FileSystemView;
  */
 public class SignDialog extends javax.swing.JDialog {
 
-    private KeyStoreTableModel2 tableModel = new KeyStoreTableModel2();
+    private KeyStoreTableModel tableModel = new KeyStoreTableModel();
     private final SignModel signModel;
     private KeyStore keyStore;
 

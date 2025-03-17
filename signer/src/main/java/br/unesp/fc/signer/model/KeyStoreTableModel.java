@@ -19,11 +19,13 @@ import javax.swing.table.AbstractTableModel;
 
 public class KeyStoreTableModel extends AbstractTableModel {
 
-    private final Map<String, X509Certificate> certificates = new TreeMap<>();
-    private final List<String> aliases = new ArrayList<>();
+    private Map<String, X509Certificate> certificates = new TreeMap<>();
+    private List<String> aliases = new ArrayList<>();
     private final DateFormat dtf = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.getDefault());
 
-    public KeyStoreTableModel(KeyStore ks) throws KeyStoreException {
+    public void setKeyStore(KeyStore ks) throws KeyStoreException {
+        aliases.clear();
+        certificates.clear();
         for (var e = ks.aliases(); e.hasMoreElements();) {
             var alias = e.nextElement();
             if (!ks.isKeyEntry(alias)) {
@@ -35,6 +37,7 @@ public class KeyStoreTableModel extends AbstractTableModel {
                 certificates.put(alias, cert);
             }
         }
+        fireTableDataChanged();
     }
 
     @Override
