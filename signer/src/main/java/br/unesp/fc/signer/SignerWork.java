@@ -139,16 +139,18 @@ public class SignerWork {
         executor.execute(() -> {
             ProgressDialog progressDialog = new ProgressDialog(main, true);
             progressDialog.setNumFiles(fileListModel.getSize());
-            progressDialog.setNumFiles(0);
+            progressDialog.setValue(0);
             progressDialog.setLocation(main.getX() + (main.getWidth() - progressDialog.getWidth()) / 2, main.getY() + (main.getHeight() - progressDialog.getHeight()) / 2);
             SwingUtilities.invokeLater(() -> progressDialog.setVisible(true));
             try {
                 for (int i = 0; i < fileListModel.getSize(); i++) {
                     try {
                         var fileModel = fileListModel.getElementAt(i);
+                        SwingUtilities.invokeLater(() -> progressDialog.setMessage("Assinando " + fileModel.getFile().getName() + " ..."));
                         var file = signPdf(fileModel.getFile(), signer);
                         send(httpClient, fileModel.getFile(), file);
-                        progressDialog.setNumFiles(i + 1);
+                        final int value = i + 1;
+                        SwingUtilities.invokeLater(() -> progressDialog.setValue(value));
                     } catch (Exception ex) {
                         Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
                         JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
