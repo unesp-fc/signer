@@ -32,6 +32,7 @@ import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColor;
 import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceRGB;
+import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.pdmodel.interactive.action.PDActionURI;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationLink;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.COSFilterInputStream;
@@ -77,6 +78,11 @@ public class SignerVerifyIndoWrite {
                 var background = signVerifyInfoModel.getBackground();
                 if (background != null && background.getAlpha() > 0) {
                     contents.setNonStrokingColor(background);
+                    if (background.getAlpha() < 255) {
+                        PDExtendedGraphicsState graphicsState = new PDExtendedGraphicsState();
+                        graphicsState.setNonStrokingAlphaConstant(background.getAlpha() / 255f);
+                        contents.setGraphicsStateParameters(graphicsState);
+                    }
                     contents.addRect(rect.x, rect.y, rect.width, rect.height);
                     contents.fill();
                 }
