@@ -18,26 +18,30 @@ public class Pdf {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String nome;
 
-    @Column(unique = true, updatable = false)
+    @Column(updatable = false, nullable = false)
     private String code;
 
-    @Column
+    @Column(nullable = false)
     private String fileIdFist;
 
-    @Column
+    @Column(nullable = false)
     private String fileIdLast;
 
-    @Column
+    @Column(nullable = false)
     private String path;
 
-    @Column
+    @Column(nullable = false)
     private Timestamp data;
 
-    @ManyToOne
-    @JoinColumn(name = "idPessoa")
+    @ManyToOne()
+    @JoinColumn(name = "id_pessoa", nullable = false)
     private Pessoa pessoa;
+
+    @ManyToOne
+    @JoinColumn(name = "id_finalidade", nullable = false)
+    private Finalidade finalidade;
 
 }

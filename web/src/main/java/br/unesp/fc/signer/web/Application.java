@@ -26,13 +26,13 @@ public class Application {
                 .authorizeHttpRequests((c) -> {
                     c
                             .requestMatchers("/upload").authenticated()
-                            .requestMatchers("/teste").authenticated()
+                            .requestMatchers("/finalidade").authenticated()
                             .anyRequest().anonymous();
                 })
                 .x509((c) -> {
                 })
                 .csrf(c -> {
-                    c.ignoringRequestMatchers("/upload");
+                    c.ignoringRequestMatchers("/upload", "/finalidade");
                 });
         return http.build();
     }

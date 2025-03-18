@@ -1,8 +1,10 @@
 package br.unesp.fc.signer.web;
 
 import br.unesp.fc.signer.SignatureService;
+import br.unesp.fc.signer.web.entities.Finalidade;
 import br.unesp.fc.signer.web.entities.Pdf;
 import br.unesp.fc.signer.web.recaptcha.RecaptchaService;
+import br.unesp.fc.signer.web.repositories.FinalidadeRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -10,8 +12,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +23,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 @org.springframework.stereotype.Controller
@@ -30,9 +36,10 @@ public class Controller {
     private final Service service;
     private final SignatureService signatureService;
     private final RecaptchaService recaptchaService;
+    private final FinalidadeRepository finalidadeRepository;
 
     @PostMapping("/upload")
-    public ResponseEntity upload(@RequestParam("file") MultipartFile file, @AuthenticationPrincipal Usuario usuario) throws IOException {
+    public ResponseEntity upload(@RequestParam("file") MultipartFile file, @RequestParam("finalidade") Long idFinalidade, @AuthenticationPrincipal Usuario usuario) throws IOException {
         if (!MediaType.APPLICATION_PDF.includes(MediaType.valueOf(file.getContentType()))) {
             log.error("Invalid content type: {}", file.getContentType());
             return new ResponseEntity("Arquivo inválido!", HttpStatus.BAD_REQUEST);
@@ -58,9 +65,22 @@ public class Controller {
         pdf.setCode(code);
         pdf.setFileIdFist(ids[0]);
         pdf.setFileIdLast(ids[1]);
+        pdf.setFinalidade(finalidadeRepository.getReferenceById(idFinalidade));
         pdf.setData(Timestamp.valueOf(LocalDateTime.now()));
         pdf.setPessoa(usuario.getPessoa());
         service.save(pdf, f);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping("/finalidade")
+    @ResponseBody
+    public List<Finalidade> finalidades() {
+        return finalidadeRepository.findAll(Sort.by(Sort.Order.desc("data")));
+    }
+
+    @PostMapping("/finalidade")
+    public ResponseEntity finalidade(@RequestBody Finalidade finalidade) {
+        finalidadeRepository.save(finalidade);
         return new ResponseEntity(HttpStatus.OK);
     }
 

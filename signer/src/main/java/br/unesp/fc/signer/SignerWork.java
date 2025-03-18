@@ -1,10 +1,13 @@
 package br.unesp.fc.signer;
 
 import br.unesp.fc.signer.model.FileListModel;
+import br.unesp.fc.signer.model.Finalidade;
 import br.unesp.fc.signer.model.SignModel;
+import br.unesp.fc.signer.view.FinalidadeSelecionar;
 import br.unesp.fc.signer.view.MainFrame;
 import br.unesp.fc.signer.view.PasswordDialog;
 import br.unesp.fc.signer.view.ProgressDialog;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,6 +27,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -42,7 +46,9 @@ import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.examples.signature.CMSProcessableInputStream;
@@ -79,13 +85,15 @@ public class SignerWork {
     @Autowired
     private FileListModel fileListModel;
 
-    private URI uploadUrl;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    private URI baseUrl;
 
     private ExecutorService executor =  Executors.newSingleThreadExecutor();
 
     @Autowired
     private void init(BasicService basicService) throws URISyntaxException {
-        uploadUrl = basicService.getCodeBase().toURI().resolve("..").resolve("upload");
+        baseUrl = basicService.getCodeBase().toURI().resolve("..");
     }
 
     public void run() throws KeyStoreException {
@@ -136,6 +144,29 @@ public class SignerWork {
             return;
         }
 
+        FinalidadeSelecionar finalidadeSelecionar = new FinalidadeSelecionar(main, true, () -> {
+            try {
+                return getFinalidades(httpClient);
+            } catch (IOException ex) {
+                Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+        }, (finalidade) -> {
+            try {
+                saveFinalidade(httpClient, finalidade);
+            } catch (IOException ex) {
+                Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        finalidadeSelecionar.setLocation(main.getX() + (main.getWidth() - finalidadeSelecionar.getWidth()) / 2, main.getY() + (main.getHeight() - finalidadeSelecionar.getHeight()) / 2);
+        finalidadeSelecionar.setVisible(true);
+        var finalidade = finalidadeSelecionar.getFinalidade();
+        if (finalidade == null) {
+            return;
+        }
+
         executor.execute(() -> {
             ProgressDialog progressDialog = new ProgressDialog(main, true);
             progressDialog.setNumFiles(fileListModel.getSize());
@@ -148,7 +179,7 @@ public class SignerWork {
                         var fileModel = fileListModel.getElementAt(i);
                         SwingUtilities.invokeLater(() -> progressDialog.setMessage("Assinando " + fileModel.getFile().getName() + " ..."));
                         var file = signPdf(fileModel.getFile(), signer);
-                        send(httpClient, fileModel.getFile(), file);
+                        send(httpClient, finalidade, fileModel.getFile(), file);
                         final int value = i + 1;
                         SwingUtilities.invokeLater(() -> progressDialog.setValue(value));
                     } catch (Exception ex) {
@@ -275,12 +306,40 @@ public class SignerWork {
 
     }
 
-    public void send(CloseableHttpClient httpClient, File orig, File assinado) throws IOException {
+    public void send(CloseableHttpClient httpClient, Finalidade finalidade, File orig, File assinado) throws IOException {
         var entity = MultipartEntityBuilder.create()
                 .addBinaryBody("file", assinado, ContentType.APPLICATION_PDF, orig.getName())
+                .addTextBody("finalidade", String.valueOf(finalidade.getId()), ContentType.MULTIPART_FORM_DATA)
                 .build();
         var httpPost = ClassicRequestBuilder
-                .post(uploadUrl)
+                .post(baseUrl.resolve("upload"))
+                .setEntity(entity)
+                .build();
+        httpClient.execute(httpPost, (response) -> {
+            if (response.getCode() != 200) {
+                throw new RuntimeException("Servidor retornou erro " + response.getCode() + "!");
+            }
+            return null;
+        });
+    }
+
+    public List<Finalidade> getFinalidades(CloseableHttpClient httpClient) throws IOException {
+        var httpGet = ClassicRequestBuilder
+                .get(baseUrl.resolve("finalidade"))
+                .build();
+        return httpClient.execute(httpGet, (response) -> {
+            if (response.getCode() != 200) {
+                throw new RuntimeException("Servidor retornou erro " + response.getCode() + "!");
+            }
+            return Arrays.asList(objectMapper.readValue(response.getEntity().getContent(), Finalidade[].class));
+        });
+    }
+
+    public void saveFinalidade(CloseableHttpClient httpClient, Finalidade finalidade) throws IOException {
+        String value = objectMapper.writeValueAsString(finalidade);
+        var entity = new StringEntity(value, ContentType.APPLICATION_JSON);
+        var httpPost = ClassicRequestBuilder
+                .post(baseUrl.resolve("finalidade"))
                 .setEntity(entity)
                 .build();
         httpClient.execute(httpPost, (response) -> {

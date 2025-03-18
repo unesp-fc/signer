@@ -37,7 +37,7 @@ public class SignDialog extends javax.swing.JDialog {
         initComponents();
         btnOpen.setText("");
         jTable1.getSelectionModel().addListSelectionListener((e) -> {
-            btnAssinar.setEnabled(jTable1.getSelectedRow() >= 0);
+            btnContinuar.setEnabled(jTable1.getSelectedRow() >= 0);
         });
     }
 
@@ -55,7 +55,7 @@ public class SignDialog extends javax.swing.JDialog {
         btnOpen = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        btnAssinar = new javax.swing.JButton();
+        btnContinuar = new javax.swing.JButton();
         btnCacelar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -75,11 +75,11 @@ public class SignDialog extends javax.swing.JDialog {
         jTable1.setModel(tableModel);
         jScrollPane1.setViewportView(jTable1);
 
-        btnAssinar.setText("Assinar");
-        btnAssinar.setEnabled(false);
-        btnAssinar.addActionListener(new java.awt.event.ActionListener() {
+        btnContinuar.setText("Continuar");
+        btnContinuar.setEnabled(false);
+        btnContinuar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAssinarActionPerformed(evt);
+                btnContinuarActionPerformed(evt);
             }
         });
 
@@ -106,7 +106,7 @@ public class SignDialog extends javax.swing.JDialog {
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(btnAssinar)
+                        .addComponent(btnContinuar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnCacelar)))
                 .addContainerGap())
@@ -124,7 +124,7 @@ public class SignDialog extends javax.swing.JDialog {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCacelar)
-                    .addComponent(btnAssinar))
+                    .addComponent(btnContinuar))
                 .addContainerGap())
         );
 
@@ -148,7 +148,7 @@ public class SignDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnOpenActionPerformed
 
-    private void btnAssinarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAssinarActionPerformed
+    private void btnContinuarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnContinuarActionPerformed
         try {
             signModel.setKeyStore(keyStore);
             signModel.setAlias((String) tableModel.getValue(jTable1.getSelectedRow()));
@@ -157,7 +157,7 @@ public class SignDialog extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
         this.dispose();
-    }//GEN-LAST:event_btnAssinarActionPerformed
+    }//GEN-LAST:event_btnContinuarActionPerformed
 
     private void btnCacelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCacelarActionPerformed
         this.dispose();
@@ -206,8 +206,8 @@ public class SignDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btnAssinar;
     private javax.swing.JButton btnCacelar;
+    private javax.swing.JButton btnContinuar;
     private javax.swing.JButton btnOpen;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
