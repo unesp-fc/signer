@@ -206,18 +206,11 @@ public class SignerWork {
         signatureOptions.setPreferredSignatureSize(SignatureOptions.DEFAULT_SIGNATURE_SIZE * 2);
         document.addSignature(signature, signer, signatureOptions);
 
-        File newFile = file.toPath().getParent().resolve(genNewFileName(pdf.getName())).toFile();
+        var dir = file.toPath().getParent().getParent().resolve("assinado");
+        dir.toFile().mkdirs();
+        File newFile = dir.resolve(pdf.getName()).toFile();
         document.saveIncremental(new FileOutputStream(newFile));
         return newFile;
-    }
-
-    private String genNewFileName(String name) {
-        int index = name.lastIndexOf('.');
-        if (index < 0) {
-            return name + "-assinado";
-        } else {
-            return name.substring(0, index) + "-assinado" + name.substring(index);
-        }
     }
 
     private class Signer implements SignatureInterface {

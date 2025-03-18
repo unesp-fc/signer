@@ -153,9 +153,9 @@ public class SignerVerifyIndoWrite {
 
     public File write(File pdf) throws IOException {
         RandomAccessRead raFile = new RandomAccessReadBufferedFile(pdf);
-        String newFileName = genNewFileName(pdf.getName());
-        var dir = pdf.toPath().getParent();
-        File newFile = dir.resolve(newFileName).toFile();
+        var dir = pdf.toPath().getParent().resolve("info");
+        dir.toFile().mkdirs();
+        File newFile = dir.resolve(pdf.getName()).toFile();
         Set<COSBase> excludeFromUpdate = new HashSet<>();
         COSArray unespSign;
         try (PDDocument doc = Loader.loadPDF(raFile)) {
@@ -198,19 +198,6 @@ public class SignerVerifyIndoWrite {
             }
         }
         return -1;
-    }
-
-    private String genNewFileName(String name) {
-        int index = name.lastIndexOf('.');
-        if (index < 0) {
-            return name + "-info";
-        } else {
-            return name.substring(0, index) + "-info" + name.substring(index);
-        }
-    }
-
-    public static void main(String args[]) {
-        System.out.println(new SignerVerifyIndoWrite().genNewFileName("certificado.pdf"));
     }
 
 }
