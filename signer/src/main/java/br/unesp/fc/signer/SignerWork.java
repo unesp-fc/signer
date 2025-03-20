@@ -27,6 +27,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -144,24 +145,29 @@ public class SignerWork {
             return;
         }
 
-        FinalidadeSelecionar finalidadeSelecionar = new FinalidadeSelecionar(main, true, () -> {
-            try {
-                return getFinalidades(httpClient);
-            } catch (IOException ex) {
-                Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-                return null;
-            }
-        }, (finalidade) -> {
-            try {
-                saveFinalidade(httpClient, finalidade);
-            } catch (IOException ex) {
-                Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
-                JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-        finalidadeSelecionar.setLocation(main.getX() + (main.getWidth() - finalidadeSelecionar.getWidth()) / 2, main.getY() + (main.getHeight() - finalidadeSelecionar.getHeight()) / 2);
-        finalidadeSelecionar.setVisible(true);
+        FinalidadeSelecionar finalidadeSelecionar;
+        try {
+            finalidadeSelecionar = new FinalidadeSelecionar(main, true, () -> {
+                try {
+                    return getFinalidades(httpClient);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }, (finalidade) -> {
+                try {
+                    saveFinalidade(httpClient, finalidade);
+                } catch (IOException ex) {
+                    Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
+                    JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+            finalidadeSelecionar.setLocation(main.getX() + (main.getWidth() - finalidadeSelecionar.getWidth()) / 2, main.getY() + (main.getHeight() - finalidadeSelecionar.getHeight()) / 2);
+            finalidadeSelecionar.setVisible(true);
+        } catch (Exception ex) {
+            Logger.getLogger(SignerWork.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(main, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         var finalidade = finalidadeSelecionar.getFinalidade();
         if (finalidade == null) {
             return;

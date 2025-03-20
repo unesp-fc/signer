@@ -26,15 +26,17 @@ public class KeyStoreTableModel extends AbstractTableModel {
     public void setKeyStore(KeyStore ks) throws KeyStoreException {
         aliases.clear();
         certificates.clear();
-        for (var e = ks.aliases(); e.hasMoreElements();) {
-            var alias = e.nextElement();
-            if (!ks.isKeyEntry(alias)) {
-                continue;
-            }
-            var certificate = ks.getCertificate(alias);
-            if (certificate instanceof X509Certificate cert) {
-                aliases.add(alias);
-                certificates.put(alias, cert);
+        if (ks != null) {
+            for (var e = ks.aliases(); e.hasMoreElements();) {
+                var alias = e.nextElement();
+                if (!ks.isKeyEntry(alias)) {
+                    continue;
+                }
+                var certificate = ks.getCertificate(alias);
+                if (certificate instanceof X509Certificate cert) {
+                    aliases.add(alias);
+                    certificates.put(alias, cert);
+                }
             }
         }
         fireTableDataChanged();

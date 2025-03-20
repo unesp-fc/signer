@@ -134,7 +134,7 @@
                                 <jarResource>
                                     <groupId>br.unesp.fc.signer</groupId>
                                     <artifactId>signer</artifactId>
-                                    <version>1.0.0</version>
+                                    <version>1.0.1</version>
                                     <mainClass>br.unesp.fc.signer.Signer</mainClass>
                                 </jarResource>
                             </jarResources>
