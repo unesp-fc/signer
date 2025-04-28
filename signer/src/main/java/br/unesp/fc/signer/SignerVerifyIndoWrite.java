@@ -104,6 +104,29 @@ public class SignerVerifyIndoWrite {
                     contents.newLineAtOffset(0, 0);
                 }
             } else {
+                if (page.getRotation() != 0) {
+                    if (page.getRotation() == 90) {
+                        float val = rect.width;
+                        rect.width = rect.height;
+                        rect.height = val;
+                        val = rect.x;
+                        rect.x = rect.y;
+                        rect.x = page.getMediaBox().getWidth() - rect.x - rect.width;
+                        rect.y = val;
+                    } else if (page.getRotation() == 180) {
+                        rect.x = page.getMediaBox().getWidth() - rect.x - rect.width;
+                        rect.y = page.getMediaBox().getHeight() - rect.y - rect.height;
+                    } else if (page.getRotation() == 270) {
+                        float val = rect.width;
+                        rect.width = rect.height;
+                        rect.height = val;
+                        val = rect.x;
+                        rect.x = rect.y;
+                        rect.y = val;
+                        rect.y = page.getMediaBox().getHeight()- rect.y - rect.height;
+                    }
+                    rotation = (page.getRotation() + rotation) % 360;
+                }
                 if (rotation == 0) {
                     contents.setTextMatrix(Matrix.getTranslateInstance(rect.x, rect.y));
                 } else if (rotation == 90) {
