@@ -111,7 +111,7 @@ public class SignerVerifyIndoWrite {
                 } else if (rotation == 180) {
                     contents.setTextMatrix(Matrix.getRotateInstance(rotation * Math.PI / 180, rect.width + rect.x, rect.height + rect.y));
                 } else if (rotation == 270) {
-                    contents.setTextMatrix(Matrix.getRotateInstance(rotation * Math.PI / 180, rect.x, rect.height + rect.width));
+                    contents.setTextMatrix(Matrix.getRotateInstance(rotation * Math.PI / 180, rect.x, rect.height + rect.y));
                 }
                 if (rotation % 180 == 0) {
                     contents.newLineAtOffset((rect.width - size.width) / 2, (rect.height - size.height) / 2 + y);
