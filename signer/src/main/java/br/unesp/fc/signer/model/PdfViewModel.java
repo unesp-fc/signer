@@ -41,7 +41,7 @@ public class PdfViewModel {
             int old = this.numberPages;
             this.numberPages = numberPages;
             changes.firePropertyChange(NUMBER_PAGES, old, numberPages);
-            if (this.currentPage >= this.numberPages) {
+            if (this.currentPage >= this.numberPages && this.numberPages != 0) {
                 old = this.currentPage;
                 this.currentPage = this.numberPages - 1;
                 changes.firePropertyChange(CURRENT_PAGE, old, currentPage);
