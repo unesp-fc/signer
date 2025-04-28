@@ -81,7 +81,7 @@ public class SignerWork {
     private MainFrame main;
 
     @Autowired
-    private SignerVerifyIndoWrite signerVerifyIndoWrite;
+    private SignerVerifyInfoWrite signerVerifyIndoWrite;
 
     @Autowired
     private FileListModel fileListModel;

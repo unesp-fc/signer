@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
  * @author demitrius
  */
 @Component
-public class SignerVerifyIndoWrite {
+public class SignerVerifyInfoWrite {
 
     private static final String TEXT = "Acesse https://sign.fc.unesp.br e digite o código  para validar a autenticidade.";
     private static final String CODE = "XXXX-XXXX-XXXX-XXXX";

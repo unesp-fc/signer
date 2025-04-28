@@ -1,6 +1,6 @@
 package br.unesp.fc.signer.model;
 
-import br.unesp.fc.signer.SignerVerifyIndoWrite;
+import br.unesp.fc.signer.SignerVerifyInfoWrite;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -55,7 +55,7 @@ public class SignVerifyInfoModel {
     public static final String BOUNDS = "bounds";
 
     @Autowired @Lazy
-    private SignerVerifyIndoWrite signerVerifyIndoWrite;
+    private SignerVerifyInfoWrite signerVerifyIndoWrite;
 
     public Rectangle2D.Float getRect() {
         return new Rectangle2D.Float(x, y, width, height);
