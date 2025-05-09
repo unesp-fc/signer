@@ -29,6 +29,7 @@ public class CustomCOSWriter extends COSWriter {
     private final COSOutputStream output;
     private long signStreamPos = 0;
     private PDDocument doc;
+    public static final COSName UNESP_SIGN = COSName.getPDFName("UnespSign");
 
     public CustomCOSWriter(OutputStream outputStream, RandomAccessRead inputData, Set<COSBase> excludedObjects, COSStream signInfo, int signInfoOffset) throws IOException {
         super(outputStream, inputData);
@@ -65,7 +66,7 @@ public class CustomCOSWriter extends COSWriter {
         var values = new COSArray();
         values.add(COSInteger.get(signStreamPos));
         values.add(COSInteger.get(19));
-        doc.getDocument().getTrailer().setItem("UnespSign", values);
+        doc.getDocument().getTrailer().setItem(UNESP_SIGN, values);
     }
 
     @Override
@@ -191,7 +192,7 @@ public class CustomCOSWriter extends COSWriter {
             trailerDict.forEach((key, value) ->
             {
                 if (COSName.INFO.equals(key) || COSName.ROOT.equals(key) || COSName.ENCRYPT.equals(key)
-                        || COSName.ID.equals(key) || COSName.PREV.equals(key) || "UnespSign".equals(key)) {
+                        || COSName.ID.equals(key) || COSName.PREV.equals(key) || UNESP_SIGN.equals(key)) {
                     stream.setItem(key, value);
                 }
             });
